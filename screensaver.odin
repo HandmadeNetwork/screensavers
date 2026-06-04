@@ -3,6 +3,8 @@ package screensaver
 import "core:math"
 import rl "vendor:raylib"
 
+mohaveData :: #load("Mohave-Regular.otf")
+
 v2 :: [2]f32
 v3 :: [3]f32
 
@@ -12,7 +14,14 @@ main :: proc() {
 	rl.InitWindow(800, 450, "Handmade Network Expo 2026")
 	rl.SetWindowState({.WINDOW_RESIZABLE})
 
-	mohave := rl.LoadFontEx("Mohave-Regular.otf", 400, nil, 0)
+	mohave := rl.LoadFontFromMemory(
+		".otf",
+		raw_data(mohaveData),
+		i32(len(mohaveData)),
+		400,
+		nil,
+		0,
+	)
 
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()

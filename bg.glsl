@@ -15,9 +15,9 @@ void main() {
   float t = time * 0.5;
   float s = 1 / windowSize.y;
 
-  float rod_freq = 0.008;
+  float rod_freq = 8;
   float rod_rotate_period = 39;
-  float color1 = (sin(dot(coord, vec2(sin(t * 2 * 3.14159 / rod_rotate_period), cos(t * 2 * 3.14159 / rod_rotate_period))) * rod_freq + t) + 1.0) * 0.5;
+  float color1 = (sin(dot(coord, vec2(sin(t * 2 * 3.14159 / rod_rotate_period), cos(t * 2 * 3.14159 / rod_rotate_period))) * rod_freq * s + t) + 1.0) * 0.5;
   // float color1 = 0;
 
   float orbit_scale = 5;

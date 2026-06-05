@@ -1,6 +1,7 @@
 package screensaver
 
 import "core:math"
+import "core:math/noise"
 import rl "vendor:raylib"
 
 mohaveData :: #load("Mohave-Regular.otf")
@@ -14,6 +15,8 @@ main :: proc() {
 	rl.InitWindow(800, 450, "Handmade Network Expo 2026")
 	rl.SetWindowState({.WINDOW_RESIZABLE})
 	rl.SetConfigFlags({.VSYNC_HINT})
+	rl.HideCursor()
+	rl.MaximizeWindow()
 
 	mohave := rl.LoadFontFromMemory(
 		".otf",
@@ -80,34 +83,57 @@ main :: proc() {
 			rl.WHITE,
 		)
 
-		theta: f32 = f32(t) * -1 * 2 * math.PI / 20
-		rot :: proc(v: v3, theta: f32) -> v3 {
-			return rl.Vector3RotateByAxisAngle(v, {0, 0, 1}, theta)
+		to_world :: proc(t: f32, id: int) -> v3 {
+			v := verts[id]
+
+			rotate_period :: 36
+			theta: f32 = f32(t) * -1 * 2 * math.PI / rotate_period
+
+			rotated := rl.Vector3RotateByAxisAngle(verts[id], {0, 0, 1}, theta)
+
+			// v_scale := math.sin(t * 2 * math.PI / 5 + f32(id) * 123) * 0.1 + 1
+			v_scale: f32 = 1
+			// if id < num_inner_verts {
+			// 	v_scale = math.sin(t * 2 * math.PI / 5) * 0.1 + 1
+			// } else {
+			// 	v_scale = math.sin(t * 2 * math.PI / 5 + math.PI / 3) * 0.05 + 1
+			// }
+			vertex_angle := math.atan2(v.x, v.y) + math.PI
+			noise_width :: 2
+			noise_scale_amt :: 0.08
+			noise_speed :: 1
+			noise := noise.noise_2d(
+				0,
+				{(f64(vertex_angle) + f64(t) * noise_speed) / noise_width, f64(v.y)},
+			)
+			v_scale = 1 + (noise + 1) / 2 * noise_scale_amt
+
+			return rotated * v_scale
 		}
-		proj :: proc(v: v3, window_size: v2) -> v2 {
+		to_screen :: proc(v: v3, window_size: v2) -> v2 {
 			scale := content_scale(window_size.y) // the "radius" of the dome
 			pos := v2{window_size.x / 2 - scale * 2.5, window_size.y * 0.54} // the center pos of the dome
 			return {v.x, v.z} * {1, -1} * scale + pos
 		}
-		transform :: proc(v: v3, theta: f32, window_size: v2) -> v2 {
-			return proj(rot(v, theta), window_size)
+		transform :: proc(t: f32, id: int, window_size: v2) -> v2 {
+			return to_screen(to_world(t, id), window_size)
 		}
 
-		for v, i in verts {
+		for _, i in verts {
 			if i < num_inner_verts {
 				continue
 			}
 			rl.DrawCircleV(
-				transform(v, theta, window_size),
+				transform(t, i, window_size),
 				0.025 * content_scale(window_size.y),
-				rl.Color{255, 255, 255, vert_opacity(rot(v, theta).y)},
+				rl.Color{255, 255, 255, vert_opacity(to_world(t, i).y)},
 			)
 		}
 		for edge in edges {
-			a_rot := rot(verts[edge[0]], theta)
-			b_rot := rot(verts[edge[1]], theta)
-			a_proj := transform(verts[edge[0]], theta, window_size)
-			b_proj := transform(verts[edge[1]], theta, window_size)
+			a_rot := to_world(t, edge[0])
+			b_rot := to_world(t, edge[1])
+			a_proj := transform(t, edge[0], window_size)
+			b_proj := transform(t, edge[1], window_size)
 			rl.DrawLineEx(
 				a_proj,
 				b_proj,

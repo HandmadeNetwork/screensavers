@@ -13,6 +13,7 @@ c_bg := rl.Color{134, 68, 154, 255}
 main :: proc() {
 	rl.InitWindow(800, 450, "Handmade Network Expo 2026")
 	rl.SetWindowState({.WINDOW_RESIZABLE})
+	rl.SetConfigFlags({.VSYNC_HINT})
 
 	mohave := rl.LoadFontFromMemory(
 		".otf",
@@ -61,7 +62,7 @@ main :: proc() {
 		window_center := window_size / 2
 
 		scale := content_scale(window_size.y)
-		text_pos := window_center - {scale * 1.1, scale * 0.4}
+		text_pos := window_center - {scale * 1.1, scale * 0.38}
 		rl.DrawTextEx(
 			mohave,
 			"HANDMADE NETWORK EXPO",

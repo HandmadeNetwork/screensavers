@@ -23,9 +23,22 @@ main :: proc() {
 		0,
 	)
 
+	plasma := rl.LoadShaderFromMemory(nil, #load("bg.glsl"))
+	time_loc := rl.GetShaderLocation(plasma, "time")
+	render_size_loc := rl.GetShaderLocation(plasma, "windowSize")
+
 	for !rl.WindowShouldClose() {
+		t := f32(rl.GetTime())
+
 		rl.BeginDrawing()
-		rl.ClearBackground(c_bg)
+		rl.ClearBackground(rl.BLACK)
+
+		rl.SetShaderValue(plasma, time_loc, &t, .FLOAT)
+		shaderRenderSize := v2{f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())}
+		rl.SetShaderValue(plasma, render_size_loc, &shaderRenderSize, .VEC2)
+		rl.BeginShaderMode(plasma)
+		rl.DrawRectangle(0, 0, rl.GetRenderWidth(), rl.GetRenderHeight(), rl.WHITE)
+		rl.EndShaderMode()
 
 		window_size :=
 			v2{f32(rl.GetRenderWidth()), f32(rl.GetRenderHeight())} / rl.GetWindowScaleDPI()
@@ -50,7 +63,7 @@ main :: proc() {
 			rl.WHITE,
 		)
 
-		theta: f32 = f32(rl.GetTime()) * -1 * 2 * math.PI / 20
+		theta: f32 = f32(t) * -1 * 2 * math.PI / 20
 		rot :: proc(v: v3, theta: f32) -> v3 {
 			return rl.Vector3RotateByAxisAngle(v, {0, 0, 1}, theta)
 		}

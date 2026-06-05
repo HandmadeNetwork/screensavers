@@ -27,8 +27,24 @@ main :: proc() {
 	time_loc := rl.GetShaderLocation(plasma, "time")
 	render_size_loc := rl.GetShaderLocation(plasma, "windowSize")
 
+	sizeBeforeFullscreen: [2]i32
+	posBeforeFullscreen: [2]f32
+
 	for !rl.WindowShouldClose() {
 		t := f32(rl.GetTime())
+
+		if rl.IsKeyPressed(rl.KeyboardKey.F) {
+			if rl.IsWindowState({.WINDOW_UNDECORATED}) {
+				rl.ClearWindowState({.WINDOW_UNDECORATED, .WINDOW_TOPMOST})
+				rl.SetWindowPosition(i32(posBeforeFullscreen.x), i32(posBeforeFullscreen.y))
+				rl.SetWindowSize(sizeBeforeFullscreen.x, sizeBeforeFullscreen.y)
+			} else {
+				posBeforeFullscreen = rl.GetWindowPosition()
+				sizeBeforeFullscreen = [2]i32{rl.GetScreenWidth(), rl.GetScreenHeight()}
+				rl.SetWindowState({.WINDOW_UNDECORATED, .WINDOW_TOPMOST})
+				rl.MaximizeWindow()
+			}
+		}
 
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.BLACK)

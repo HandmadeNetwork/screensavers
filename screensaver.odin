@@ -91,13 +91,6 @@ main :: proc() {
 
 			rotated := rl.Vector3RotateByAxisAngle(verts[id], {0, 0, 1}, theta)
 
-			// v_scale := math.sin(t * 2 * math.PI / 5 + f32(id) * 123) * 0.1 + 1
-			v_scale: f32 = 1
-			// if id < num_inner_verts {
-			// 	v_scale = math.sin(t * 2 * math.PI / 5) * 0.1 + 1
-			// } else {
-			// 	v_scale = math.sin(t * 2 * math.PI / 5 + math.PI / 3) * 0.05 + 1
-			// }
 			vertex_angle := math.atan2(v.x, v.y) + math.PI
 			noise_width :: 2
 			noise_scale_amt :: 0.08
@@ -106,7 +99,7 @@ main :: proc() {
 				0,
 				{(f64(vertex_angle) + f64(t) * noise_speed) / noise_width, f64(v.y)},
 			)
-			v_scale = 1 + (noise + 1) / 2 * noise_scale_amt
+			v_scale := 1 + (noise + 1) / 2 * noise_scale_amt
 
 			return rotated * v_scale
 		}
@@ -149,7 +142,8 @@ main :: proc() {
 }
 
 vert_opacity :: proc(y: f32) -> u8 {
-	opacity := clamp(math.remap(y, -0.3, 0.2, 255, 0), 0, 255)
+	max_opacity, min_opacity :: 255, 0
+	opacity := clamp(math.remap(y, -0.3, 0.2, max_opacity, min_opacity), min_opacity, max_opacity)
 	return u8(opacity)
 }
 

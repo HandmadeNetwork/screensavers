@@ -34,14 +34,14 @@ void main() {
   // For the final colors to match up with our general color palette, we
   // basically need to oscillate around roughly:
   //
-  // "Warm purple": rgb(134, 68, 154) (0.52, 0.26, 0.60)
-  // "Cool purple": rgb(101, 31, 170) (0.39, 0.12, 0.66)
+  // "Warm purple": rgb(134, 68, 154)
+  // "Cool purple": rgb(52, 25, 141)
   float blueWarble = sin(t * 0.12345 * 3.14159) * 0.1 + 0.2;
   // float blueWarble = 0;
   finalColor = vec4(
-    oscillateBetween(0.52, 0.39, c * 3.14159),
-    oscillateBetween(0.26, 0.12, c * 3.14159),
-    oscillateBetween(0.60, 0.66, c * 3.14159) + blueWarble,
+    oscillateBetween(134/256.0, 52/256.0,  c * 3.14159),
+    oscillateBetween(68/256.0, 25/256.0,  c * 3.14159),
+    oscillateBetween(154/256.0, 141/256.0, c * 3.14159) + blueWarble,
     1.0
   );
 }

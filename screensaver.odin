@@ -136,18 +136,39 @@ main :: proc() {
 
 			rotate_period :: 36
 			theta: f32 = f32(t) * -1 * 2 * math.PI / rotate_period
+			// theta: f32 = 0
 
 			rotated := rl.Vector3RotateByAxisAngle(verts[id], {0, 0, 1}, theta)
 
-			vertex_angle := math.atan2(v.x, v.y) + math.PI
-			noise_width :: 2
+			// In order to get nice waves of noise traveling over the sphere while
+			// allowing perfect loops, we "unwrap" the sphere around its vertical
+			// axis (mapping vertex angle to x) and the vertex's vertical position to
+			// y. This gives us 2D rectangular coordinates for each vertex, which we
+			// then map to an annulus (ring) in 2D simplex noise. We then rotate that
+			// annulus at whatever speed we desire. Because this is circular, we get
+			// perfect loops.
+			//
+			// The parameters to vary are:
+			// - Annulus inner radius: Controls the horizontal noise frequency, as
+			//   well as the distortion in noise speed between the top and bottom of
+			//   the sphere. A larger radius means higher noise frequency and less
+			//   distortion; a smaller radius means lower noise frequency but more
+			//   distortion. Note that this also affects the speed of wave travel.
+			// - Annulus thickness: Controls the vertical noise frequency. Slight
+			//   misnomer, because it is just a scale factor applied to the vertex's
+			//   z coordinate when mapped to the annulus.
+			// - Period: Controls how quickly you proceed around the annulus.
+			//
+			// Please note that this is NOT SLOP!
+			annulus_inner_radius :: 1
+			annulus_thickness :: 0.6
+			noise_period :: 12 // seconds
 			noise_scale_amt :: 0.08
-			noise_speed :: 1
-			noise := noise.noise_2d(
-				0,
-				{(f64(vertex_angle) + f64(t) * noise_speed) / noise_width, f64(v.y)},
-			)
-			v_scale := 1 + (noise + 1) / 2 * noise_scale_amt
+			v_2d := v2{(math.atan2(v.x, v.y) + math.PI) / (2 * math.PI), 1 - v.z}
+			v_theta := (f64(t) * 2 * math.PI / noise_period) + f64(v_2d.x) * 2 * math.PI
+			v_radius := annulus_inner_radius + f64(v_2d.y) * annulus_thickness
+			n := noise.noise_2d(0, {v_radius * math.cos(v_theta), v_radius * math.sin(v_theta)})
+			v_scale := 1 + (n + 1) / 2 * noise_scale_amt
 
 			return rotated * v_scale
 		}

@@ -13,16 +13,16 @@ v3 :: [3]f32
 
 c_bg := rl.Color{134, 68, 154, 255}
 
-// Offline render settings (--render flag)
-RENDER_W :: 1920
-RENDER_H :: 1080
-RENDER_FPS :: 30
+// Offline render settings (--video flag)
+VIDEO_W, VIDEO_H :: 1920, 1080
+VIDEO_SS :: 4 // supersample factor
+VIDEO_FPS :: 30
 RENDER_DURATION :: 72 // seconds (LCM of all periods)
 
 main :: proc() {
 	render_video := false
 	for arg in os.args[1:] {
-		if arg == "--render" {
+		if arg == "--video" {
 			render_video = true
 		}
 	}
@@ -30,8 +30,8 @@ main :: proc() {
 	target: rl.RenderTexture2D
 	if render_video {
 		rl.SetConfigFlags({.WINDOW_HIDDEN})
-		rl.InitWindow(RENDER_W, RENDER_H, "Handmade Network Expo 2026")
-		target = rl.LoadRenderTexture(RENDER_W, RENDER_H)
+		rl.InitWindow(VIDEO_W, VIDEO_H, "Handmade Network Expo 2026")
+		target = rl.LoadRenderTexture(VIDEO_W * VIDEO_SS, VIDEO_H * VIDEO_SS)
 		os.make_directory("frames")
 	} else {
 		rl.InitWindow(800, 450, "Handmade Network Expo 2026")
@@ -58,20 +58,18 @@ main :: proc() {
 	posBeforeFullscreen: [2]f32
 
 	frame := 0
-	total_frames := RENDER_FPS * RENDER_DURATION
+	video_frames := VIDEO_FPS * RENDER_DURATION
 	for {
 		t: f32
 		render_w, render_h: i32
 		dpi: v2
 
-		// Compute basic render parameters depending on video render mode vs.
-		// interactive mode
 		if render_video {
-			if frame >= total_frames {
+			if frame >= video_frames {
 				break
 			}
-			t = f32(frame) / RENDER_FPS
-			render_w, render_h = RENDER_W, RENDER_H
+			t = f32(frame) / VIDEO_FPS
+			render_w, render_h = VIDEO_W * VIDEO_SS, VIDEO_H * VIDEO_SS
 			dpi = {1, 1}
 		} else {
 			if rl.WindowShouldClose() {
@@ -158,8 +156,6 @@ main :: proc() {
 			//   misnomer, because it is just a scale factor applied to the vertex's
 			//   z coordinate when mapped to the annulus.
 			// - Period: Controls how quickly you proceed around the annulus.
-			//
-			// Please note that this is NOT SLOP!
 			annulus_inner_radius :: 1
 			annulus_thickness :: 0.6
 			noise_period :: 12 // seconds
@@ -209,10 +205,11 @@ main :: proc() {
 
 			img := rl.LoadImageFromTexture(target.texture)
 			rl.ImageFlipVertical(&img) // render textures are stored upside down
+			rl.ImageResize(&img, VIDEO_W, VIDEO_H)
 			rl.ExportImage(img, fmt.ctprintf("frames/frame_%05d.png", frame))
 			rl.UnloadImage(img)
 
-			fmt.printf("\rRendered frame %d/%d", frame + 1, total_frames)
+			fmt.printfln("Rendered frame %d/%d", frame + 1, video_frames)
 		} else {
 			rl.EndDrawing()
 		}

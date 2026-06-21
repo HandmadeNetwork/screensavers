@@ -16,13 +16,13 @@ void main() {
   float s = 1 / windowSize.y;
 
   float rod_freq = 8;
-  float rod_rotate_period = 78;
+  float rod_rotate_period = 72;
   float rod_scroll_period = 12;
   float color1 = (sin(dot(coord, vec2(sin(t * 2 * 3.14159 / rod_rotate_period), cos(t * 2 * 3.14159 / rod_rotate_period))) * rod_freq * s + t * 2 * 3.14159 / rod_scroll_period) + 1.0) * 0.5;
   // float color1 = 0;
 
   float orbit_scale = 5;
-  float orbit_period = 20;
+  float orbit_period = 24;
   vec2 center = windowSize / 2 + orbit_scale * vec2(windowSize.y / 2 * sin(-t * 2 * 3.14159 / orbit_period), windowSize.y / 2 * cos(-t * 2 * 3.14159 / orbit_period));
   // vec2 center = windowSize / 2;
 
@@ -37,7 +37,7 @@ void main() {
   //
   // "Warm purple": rgb(134, 68, 154)
   // "Cool purple": rgb(52, 25, 141)
-  float warble_period = 32;
+  float warble_period = 36;
   float blueWarble = sin(t * 2 * 3.14159 / warble_period) * 0.1 + 0.2;
   // float blueWarble = 0;
   finalColor = vec4(

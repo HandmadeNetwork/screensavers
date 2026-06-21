@@ -17,7 +17,7 @@ c_bg := rl.Color{134, 68, 154, 255}
 RENDER_W :: 1920
 RENDER_H :: 1080
 RENDER_FPS :: 30
-RENDER_DURATION :: 36 // seconds (one full rotation)
+RENDER_DURATION :: 72 // seconds (LCM of all periods)
 
 main :: proc() {
 	render_video := false

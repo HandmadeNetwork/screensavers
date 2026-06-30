@@ -16,7 +16,7 @@ c_bg := rl.Color{134, 68, 154, 255}
 // Offline render settings (--video flag)
 VIDEO_W, VIDEO_H :: 1920, 1080
 VIDEO_SS :: 4 // supersample factor
-VIDEO_FPS :: 30
+VIDEO_FPS :: 60
 RENDER_DURATION :: 72 // seconds (LCM of all periods)
 
 main :: proc() {
@@ -109,22 +109,24 @@ main :: proc() {
 
 		window_size := v2{f32(render_w), f32(render_h)} / dpi
 		window_center := window_size / 2
+		window_corner := v2{0, window_size.y}
 
 		scale := content_scale(window_size.y)
-		text_pos := window_center - {scale * 1.1, scale * 0.38}
+		// text_pos := window_center - {scale * 1.1, scale * 0.38}
+		text_pos := window_corner + {scale * 3.6, scale * -2.05}
 		rl.DrawTextEx(
 			mohave,
 			"HANDMADE NETWORK EXPO",
 			text_pos,
-			scale * 0.6,
+			scale * 1,
 			scale * -.003,
 			rl.WHITE,
 		)
 		rl.DrawTextEx(
 			mohave,
 			"Vancouver 2O26",
-			text_pos + {scale * 0.03, scale * 0.6},
-			scale * 0.4,
+			text_pos + {scale * 0.03, scale * 0.9},
+			scale * 0.67,
 			scale * -.003,
 			rl.WHITE,
 		)
@@ -170,7 +172,8 @@ main :: proc() {
 		}
 		to_screen :: proc(v: v3, window_size: v2) -> v2 {
 			scale := content_scale(window_size.y) // the "radius" of the dome
-			pos := v2{window_size.x / 2 - scale * 2.5, window_size.y * 0.54} // the center pos of the dome
+			// pos := v2{window_size.x / 2 - scale * 2.5, window_size.y * 0.54} // the center pos of the dome
+			pos := v2{scale * 2, window_size.y - scale * 1}
 			return {v.x, v.z} * {1, -1} * scale + pos
 		}
 		transform :: proc(t: f32, id: int, window_size: v2) -> v2 {
@@ -231,5 +234,5 @@ vert_opacity :: proc(y: f32) -> u8 {
 }
 
 content_scale :: proc(window_height: f32) -> f32 {
-	return window_height * 0.15
+	return window_height * 0.05
 }
